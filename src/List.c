@@ -5,8 +5,13 @@
  */
 
 #include <stdlib.h>
+#include <memory.h>
 
 #include "List.h"
+
+
+/* ------ macro definitions ------ */
+#define DEFAULT_LIST_INIT 10
 
 /* ------ public functions ------ */
 
@@ -14,27 +19,51 @@
 
 int list_new(List *list, size_t size)
 {
-    // TODO/dev implement me!
-    return EXIT_FAILURE;
+    if (0 >= size) {
+        return EXIT_FAILURE;
+    }
+
+    list->capacity = DEFAULT_LIST_INIT;
+    list->count = 0;
+    list->arr = malloc(size * list->capacity);
+
+    if (NULL == list->arr) {
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
 }
 
 int list_destroy(List *list)
 {
-    // TODO/dev implement me!
-    return EXIT_FAILURE;
+    list->item_size = 0;
+    list->count = 0;
+    list->capacity = 0;
+    free(list->arr);
+    return EXIT_SUCCESS;
 }
 
 /* Utility functions */
 
 int list_value_at(const List *list, int index, void *value)
 {
-    // TODO/dev implement me!
-    return EXIT_FAILURE;
+    if (list->capacity <= index) {
+        return EXIT_FAILURE;
+    }
+
+    size_t jump = list->item_size * index;
+
+    void *temp = memcpy(value, list->arr + jump, list->item_size);
+    if (NULL == temp) { 
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
 }
 
 /* Modifiers */
-int list_add(List *list, void *item)
-{
-    // TODO/dev implement me!
-    return EXIT_FAILURE;
-}
+// TODO: Implement this.
+int list_add(List *list, void *item);
+
+// TODO: Implement this.
+int list_remove_at( List *list, int index);
