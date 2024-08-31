@@ -23,6 +23,11 @@
 
 #include <stddef.h>
 
+enum ExitCodes {
+    NORMAL = 0,
+    ERROR
+};
+
 typedef struct List {
     size_t item_size;
     int count;
