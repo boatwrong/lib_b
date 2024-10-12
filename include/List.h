@@ -23,31 +23,30 @@
 
 #include <stddef.h>
 
-enum ExitCodes {
-    NORMAL = 0,
-    ERROR
-};
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
 
-typedef struct List {
-    size_t item_size;
-    int count;
-    int capacity;
-    void *arr;
-} List;
+    typedef struct List {
+        size_t item_size;
+        int count;
+        int capacity;
+        void *arr;
+    } List;
 
-/* Constructor and destructor */
+    /* Constructor and destructor */
+    List * list_new(List *list, size_t size);
+    void list_destroy(List *list);
 
-int list_new(List *list, size_t size); 
+    /* Utility functions */
+    void list_value_at(const List *list, int index, void *value);
 
-int list_destroy(List *list);
+    /* Modifiers */
+    void list_add(List *list, void *item);
+    int list_remove_at( List *list, int index);
 
-/* Utility functions */
-
-int list_value_at(const List *list, int index, void *value);
-
-/* Modifiers */
-int list_add(List *list, void *item);
-
-int list_remove_at( List *list, int index);
+#ifdef __cplusplus
+}
+#endif // __cplusplus
 
 #endif // _LIST_H

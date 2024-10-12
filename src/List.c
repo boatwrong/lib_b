@@ -9,68 +9,68 @@
 
 #include "List.h"
 
+
 /* ------ private function declarations ------ */
 int ensure_capacity(List *list);
 
 /* ------ macro definitions ------ */
 #define DEFAULT_LIST_INIT 10
+#define NORMAL 1
+#define ERROR 0
 
 /* ------ public functions ------ */
 
 /* Constructor and destructor */
 
-int list_new(List *list, size_t size)
+List * list_new(List *list, size_t size)
 {
-    if (0 >= size) {
-        return EXIT_FAILURE;
-    }
+    if (0 >= size) { return NULL; }
 
     list->capacity = DEFAULT_LIST_INIT;
     list->count = 0;
     list->item_size = size;
     list->arr = malloc(list->item_size * (list->capacity + 1));
 
-    if (NULL == list->arr) {
-        return EXIT_FAILURE;
-    }
+    if (NULL == list->arr) { return NULL; }
 
-    return EXIT_SUCCESS;
+    return list;
 }
 
-int list_destroy(List *list)
+void list_destroy(List *list)
 {
     list->item_size = 0;
     list->count = 0;
     list->capacity = 0;
     free(list->arr);
-    return NORMAL;
+    list->arr = NULL;
 }
 
 /* Utility functions */
 
-int list_value_at(const List *list, int index, void *value)
+void list_value_at(const List *list, int index, void *value)
 {
-    if (list->capacity <= index) {
-        return ERROR;
+    if (list->capacity <= index) { 
+        value = NULL;
+        return; 
     }
 
     size_t jump = list->item_size * index;
 
     void *temp = memcpy(value, list->arr + jump, list->item_size);
-    if (NULL == temp) { 
-        return ERROR;
-    }
 
-    return NORMAL;
+    if (NULL == temp) { 
+        value = NULL;
+        return; 
+    }
 }
 
 /* Modifiers */
 // TODO: Implement this.
-int list_add(List *list, void *item) 
+void list_add(List *list, void *item) 
 {
     // Check that list has space.
     if (NORMAL != ensure_capacity(list)) {
-        return ERROR;
+        return;
     }
 
     // Get last (n) position in list.
@@ -89,13 +89,11 @@ int list_add(List *list, void *item)
     
     // Double check that item was copied over correctly.
     if (NULL == temp) { 
-        return ERROR;
+        return;
     }
 
     // Increment count.
     list->count++;
-
-    return NORMAL;
 }
 
 // TODO: Implement this.
