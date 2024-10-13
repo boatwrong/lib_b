@@ -79,6 +79,9 @@ TEST(copy, value_at) {
     void *src = &x;
     void *temp = memcpy(my_list.arr, src, sizeof(int));
 
+    // Increment our item count to not fail.
+    my_list.count++;
+
     // Check that value was added correctly.
     ASSERT_NE(nullptr, temp);
 
@@ -86,6 +89,29 @@ TEST(copy, value_at) {
     void *res = malloc(sizeof(int *));
     list_value_at(&my_list, 0, res);
     int *y = (int *)res;
+    ASSERT_EQ(x, *y);
+
+    // Cleanup
+    list_destroy(&my_list);
+}
+
+
+TEST(copy, list_add) {
+    // Create list.
+    List my_list;
+    list_new(&my_list, test_item_size);
+
+    // Cheat and put a value in the array, increment the count and whatnot.
+    int x = 3;
+    void *src = &x;
+    void *temp = list_add(&my_list, src);
+    ASSERT_NE(nullptr, temp);
+
+    // Retrieve value with accessor function to check equivalence.
+    void *res = malloc(sizeof(int *));
+    void *value = list_value_at(&my_list, 0, res);
+    ASSERT_NE(nullptr, value);
+    int *y = (int *)value;
     ASSERT_EQ(x, *y);
 
     // Cleanup

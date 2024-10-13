@@ -39,11 +39,12 @@ extern "C" {
     void list_destroy(List *list);
 
     /* Utility functions */
-    void list_value_at(const List *list, int index, void *value);
+    void * list_value_at(const List *list, int index, void *value);
 
     /* Modifiers */
-    void list_add(List *list, void *item);
-    int list_remove_at( List *list, int index);
+    void * list_add(List *list, void *item);
+    int list_set(List *list, int index, void *item);
+    int list_remove_at(List *list, int index);
 
 #ifdef __cplusplus
 }

@@ -4,10 +4,14 @@
  * public and private list functions
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
 
 #include "List.h"
+
+#define NORMAL 1
+#define ERROR 0
 
 
 /* ------ private function declarations ------ */
@@ -15,8 +19,6 @@ int ensure_capacity(List *list);
 
 /* ------ macro definitions ------ */
 #define DEFAULT_LIST_INIT 10
-#define NORMAL 1
-#define ERROR 0
 
 /* ------ public functions ------ */
 
@@ -47,30 +49,38 @@ void list_destroy(List *list)
 
 /* Utility functions */
 
-void list_value_at(const List *list, int index, void *value)
+void * list_value_at(const List *list, int index, void *value)
 {
-    if (list->capacity <= index) { 
-        value = NULL;
-        return; 
+    // Check for valid index.
+    if ((list->count <= index) || (list->capacity <= index)) { 
+        return NULL; 
     }
 
-    size_t jump = list->item_size * index;
 
-    void *temp = memcpy(value, list->arr + jump, list->item_size);
+    // Calculate position of value to retrieve based on List's defined number
+    // of bytes per item.
+    size_t position = list->item_size * index;
 
-    if (NULL == temp) { 
-        value = NULL;
-        return; 
-    }
+    // Retrieve item from list.
+    void *temp = memcpy(value, list->arr + position, list->item_size);
+
+    return temp;
+
+    // // Check that item was retrieved successfully.
+    // if (NULL == temp) { 
+    //     value = NULL;
+    //     return; 
+    // }
 }
 
 /* Modifiers */
-// TODO: Implement this.
-void list_add(List *list, void *item) 
+void * list_add(List *list, void *item) 
 {
     // Check that list has space.
     if (NORMAL != ensure_capacity(list)) {
-        return;
+        // This means that the memory check and subsequent attempt to increase
+        // the capacity of the List failed. Return early.
+        return NULL;
     }
 
     // Get last (n) position in list.
@@ -80,20 +90,48 @@ void list_add(List *list, void *item)
     // value at index 0 is = *(list->arr + 0 * item_size)
     // value at index 1 is = *(list->arr + 1 * item_size)
     // ...
-    // value of last item, index list->count, is = *(list->arr + list->count * item_size)
+    // // Because list is 0-indexed, the value of last item, relative to the
+    // // count is:
+    // *(list->arr + (list->count - 1) * item_size)
+    // ...
+    // // And appending an item would be done at:
+    // *(list->arr + list->count * item_size)
 
     // Copy over value to arr[n + 1].
-    // void *temp = memcpy(value, list->arr + jump, list->item_size);
-    void *position = (list->arr + (list->count + 1) * list->item_size);
+    // void *temp = memcpy(value, list->arr + position, list->item_size);
+    void *position = (list->arr + list->count * list->item_size);
+    void *temp = memcpy(position, item, list->item_size);
+    
+    // Double check that item was copied over correctly.
+    if (NULL != temp) { 
+        // Increment count.
+        list->count++;
+    }
+
+    return temp;
+}
+
+int list_set(List *list, int index, void *item) 
+{
+    // Check for valid index.
+    if ((list->count <= index) || (list->capacity <= index)) { 
+        fprintf(stderr, "%s\n","Index out of bounds.");
+        return ERROR; 
+    }
+
+    // Calculate position within list to modify.
+    void *position = (list->arr + (index) * list->item_size);
+
+    // Modify the item in the List.
     void *temp = memcpy(position, item, list->item_size);
     
     // Double check that item was copied over correctly.
     if (NULL == temp) { 
-        return;
+        fprintf(stderr, "%s\n","Value not copied correctly.");
+        return ERROR;
     }
 
-    // Increment count.
-    list->count++;
+    return NORMAL;
 }
 
 // TODO: Implement this.
@@ -115,6 +153,7 @@ int ensure_capacity(List *list)
 
         // Check that memory was allocated correctly.
         if (NULL == list->arr) {
+            fprintf(stderr, "Unable to allocate memory\n");
             return ERROR;
         }
 
